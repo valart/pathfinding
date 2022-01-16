@@ -11,6 +11,7 @@ let isMouseDown = false;
 let isMovingStartNode = false;
 let isMovingEndNode = false;
 let isDrawingWall = false;
+let isRemovingWall = false;
 
 const Status = {
     EMPTY: 'EMPTY',
@@ -69,6 +70,13 @@ class Board {
         }
     }
 
+    removeWall(x, y) {
+        const node = new Node(Math.floor(x / NODE_SIZE) * NODE_SIZE, Math.floor(y / NODE_SIZE) * NODE_SIZE, NODE_SIZE, Status.EMPTY);
+        if (BOARD_NODES[node.y / NODE_SIZE][node.x / NODE_SIZE].status === Status.WALL) {
+            this.addNode(node)
+        }
+    }
+
     addNode(node) {
         BOARD_NODES[node.y / NODE_SIZE][node.x / NODE_SIZE] = node;
         node.drawNode();
@@ -97,10 +105,14 @@ class Board {
             this.moveNode(finishNode, Math.floor(x / NODE_SIZE), Math.floor(y / NODE_SIZE));
         } else if (isDrawingWall) {
             this.addWall(x, y);
+        } else if (isRemovingWall) {
+            this.removeWall(x, y);
         } else if (BOARD_NODES[Math.floor(y / NODE_SIZE)][Math.floor(x / NODE_SIZE)].status === Status.START) {
             isMovingStartNode = true;
         } else if (BOARD_NODES[Math.floor(y / NODE_SIZE)][Math.floor(x / NODE_SIZE)].status === Status.END) {
             isMovingEndNode = true;
+        } else if (BOARD_NODES[Math.floor(y / NODE_SIZE)][Math.floor(x / NODE_SIZE)].status === Status.WALL) {
+            isRemovingWall = true;
         } else {
             isDrawingWall = true;
         }
@@ -127,6 +139,7 @@ canvas.addEventListener('mouseup', function (event) {
     isMovingStartNode = false;
     isMovingEndNode = false;
     isDrawingWall = false
+    isRemovingWall = false;
 });
 
 function clearBoard() {

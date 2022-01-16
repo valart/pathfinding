@@ -5,3 +5,8 @@ body {
 #board {
     border:1px solid #000000;
 }
+
+.form-select {
+    width: auto;
+    display: inline;
+}
