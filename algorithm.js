@@ -26,6 +26,9 @@ class Node {
         this.y = y;
         this.size = size;
         this.status = status;
+        this.f = Infinity;
+        this.g = Infinity;
+        this.h = Infinity;
     }
 
     drawNode() {
@@ -153,3 +156,91 @@ function initializeBoard() {
     board.addNode(startNode);
     board.addNode(finishNode);
 }
+
+
+// Algorithms
+
+function distance(node1, node2){
+    return Math.pow(Math.pow(node1.x - node2.x,2)+Math.pow(node1.y - node2.y,2),0.5);
+}
+
+function neighbors(board,node){
+    var result = [];
+    var x = node.pos.x;
+    var y = node.pos.y;
+   
+    if(board[x-1] && board[x-1][y]) {
+        result.push(board[x-1][y]);
+    }
+    if(board[x+1] && board[x+1][y]) {
+        result.push(board[x+1][y]);
+    }
+    if(board[x][y-1] && board[x][y-1]) {
+        result.push(board[x][y-1]);
+    }
+    if(board[x][y+1] && board[x][y+1]) {
+        result.push(board[x][y+1]);
+    }
+    return result;
+}
+
+
+function Asearch(board,start,end)  {
+   
+    var opened   = [];
+    var closed = [];
+    opened.push(start);
+
+    while(opened.length > 0) {
+        var lowInd = 0;
+        for(var i=0; i<opened.length; i++) {
+            if(opened[i].f < opened[lowInd].f) { 
+                lowInd = i; 
+            }
+        }
+        var currentNode = opened[lowInd];
+
+        // When endpoint is reached
+        if(currentNode.x == end.x && currentNode.y == end.y) {
+            var curr = currentNode;
+            var result = [];
+            while(curr.parent) {
+                result.push(curr);
+                curr = curr.parent;
+            }
+            return result.reverse();
+        }
+
+        opened.removeGraphNode(currentNode);
+        closed.push(currentNode);
+        var neighbors = A.neighbors(board, currentNode);
+
+        for(var i=0; i<neighbors.length;i++) {
+            var neighbor = neighbors[i];
+            if(closed.findGraphNode(neighbor) || neighbor.isWall()) {
+                continue;
+            }
+
+            var gScore = currentNode.g + 1; 
+            var gScoreIsBest = false;
+
+
+            if(!opened.findGraphNode(neighbor)) {
+                gScoreIsBest = true;
+                neighbor.h = A.heuristic(neighbor.pos, end.pos);
+                opened.push(neighbor);
+            }
+            else if(gScore < neighbor.g) {
+                gScoreIsBest = true;
+            }
+
+            if(gScoreIsBest) {
+                neighbor.parent = currentNode;
+                neighbor.g = gScore;
+                neighbor.f = neighbor.g + neighbor.h;
+            }
+        }
+    }
+    
+    return [];
+  };
