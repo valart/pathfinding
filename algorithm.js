@@ -17,7 +17,8 @@ const Status = {
     EMPTY: 'EMPTY',
     WALL: 'WALL',
     START: 'START',
-    END: 'END'
+    END: 'END',
+    PATH: 'PATH'
 }
 
 class Node {
@@ -42,6 +43,9 @@ class Node {
                 break;
             case Status.WALL:
                 context.fillStyle = "black";
+                break;
+            case Status.PATH:
+                context.fillStyle = "yellow";
                 break;
             default:
                 context.fillStyle = "white";
@@ -157,6 +161,12 @@ function initializeBoard() {
     board.addNode(finishNode);
 }
 
+function runAlgorithm() {
+    // TODO: Check which algorithm was chosen
+    const algorithm = document.getElementById('algo-select').value;
+    Asearch(Board, startNode, finishNode);
+}
+
 
 // Algorithms
 
@@ -202,7 +212,7 @@ function Asearch(board,start,end)  {
         var currentNode = opened[lowInd];
 
         // When endpoint is reached
-        if(currentNode.x == end.x && currentNode.y == end.y) {
+        if(currentNode.x === end.x && currentNode.y === end.y) {
             var curr = currentNode;
             var result = [];
             while(curr.parent) {

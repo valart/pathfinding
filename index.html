@@ -11,11 +11,11 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 text-left">
-            <button class="btn btn-primary" type="button">Run algorithm</button>
-            <select class="form-select" aria-label="Algorithm choice">
-                <option selected>Choose algorithm</option>
-                <option value="1">Dijkstra</option>
-                <option value="2">A* Search</option>
+            <button class="btn btn-primary" type="button" onclick="runAlgorithm()">Run algorithm</button>
+            <select class="form-select" aria-label="Algorithm choice" id="algo-select">
+                <option value="none" selected>Choose algorithm</option>
+                <option value="dijsktra">Dijkstra</option>
+                <option value="asearch">A* Search</option>
             </select>
         </div>
         <div class="col-md-6 text-right">
