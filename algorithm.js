@@ -164,7 +164,13 @@ function initializeBoard() {
 function runAlgorithm() {
     // TODO: Check which algorithm was chosen
     const algorithm = document.getElementById('algo-select').value;
-    Asearch(Board, startNode, finishNode);
+    var pathNodes = Asearch(startNode, finishNode);
+    console.log(pathNodes.length);
+    for(var i=0;i<pathNodes.length-1;i++){
+        pathNodes[i].status = Status.PATH
+        pathNodes[i].drawNode()
+    }
+    
 }
 
 
@@ -174,28 +180,46 @@ function distance(node1, node2){
     return Math.pow(Math.pow(node1.x - node2.x,2)+Math.pow(node1.y - node2.y,2),0.5);
 }
 
-function neighbors(board,node){
+function getNeighbors(node){
     var result = [];
-    var x = node.pos.x;
-    var y = node.pos.y;
+    var x = node.x/NODE_SIZE;
+    var y = node.y/NODE_SIZE;
    
-    if(board[x-1] && board[x-1][y]) {
-        result.push(board[x-1][y]);
+    if(x >= 1) {
+        result.push(BOARD_NODES[y][x-1]);
     }
-    if(board[x+1] && board[x+1][y]) {
-        result.push(board[x+1][y]);
+    if(x < CANVAS_WIDTH / NODE_SIZE) {
+        result.push(BOARD_NODES[y][x+1]);
     }
-    if(board[x][y-1] && board[x][y-1]) {
-        result.push(board[x][y-1]);
+    if(y >= 1) {
+        result.push(BOARD_NODES[y-1][x]);
     }
-    if(board[x][y+1] && board[x][y+1]) {
-        result.push(board[x][y+1]);
+    if(y < CANVAS_HEIGHT / NODE_SIZE) {
+        result.push(BOARD_NODES[y+1][x]);
     }
     return result;
 }
 
+function removeNode(array,node){
+    for(var i=0;i<array.length;i++){
+        if(array[i]==node){
+            array.splice(i,1)
+            break;
+        }
+    }
+}
 
-function Asearch(board,start,end)  {
+function findNode(array,node){
+    for(var i=0;i<array.length;i++){
+        if(array[i]==node){
+            return true
+        }
+    }
+    return false
+}
+
+
+function Asearch(start,end)  {
    
     var opened   = [];
     var closed = [];
@@ -210,7 +234,7 @@ function Asearch(board,start,end)  {
             }
         }
         var currentNode = opened[lowInd];
-
+        console.log(currentNode.x,currentNode.y);
         // When endpoint is reached
         if(currentNode.x === end.x && currentNode.y === end.y) {
             var curr = currentNode;
@@ -222,16 +246,21 @@ function Asearch(board,start,end)  {
             return result.reverse();
         }
 
+        
+        // Removing node from opened
+        
+        removeNode(opened,currentNode)
+
         // Adding node to closed
-        opened.removeGraphNode(currentNode);
         closed.push(currentNode);
         // Getting node neighbors
-        var neighbors = A.neighbors(board, currentNode);
-
+        var neighbors = getNeighbors(currentNode);
+        console.log("Neighbors:")
+        console.log(neighbors.length)
         // Adding neighbors to open list and changing f,g and h for them
         for(var i=0; i<neighbors.length;i++) {
             var neighbor = neighbors[i];
-            if(closed.findGraphNode(neighbor) || neighbor.isWall()) {
+            if(findNode(closed,neighbor) || neighbor.status == Status.WALL) {
                 continue;
             }
             
@@ -241,7 +270,7 @@ function Asearch(board,start,end)  {
             var gScoreIsBest = false;
 
             // If we visit this node firstly
-            if(!opened.findGraphNode(neighbor)) {
+            if(!findNode(opened,neighbor)) {
                 gScoreIsBest = true;
                 neighbor.h = distance(neighbor, end);
                 opened.push(neighbor);
