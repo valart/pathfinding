@@ -192,6 +192,7 @@ function Asearch(board,start,end)  {
     opened.push(start);
 
     while(opened.length > 0) {
+        // Choosing the node with lowest f
         var lowInd = 0;
         for(var i=0; i<opened.length; i++) {
             if(opened[i].f < opened[lowInd].f) { 
@@ -211,23 +212,28 @@ function Asearch(board,start,end)  {
             return result.reverse();
         }
 
+        // Adding node to closed
         opened.removeGraphNode(currentNode);
         closed.push(currentNode);
+        // Getting node neighbors
         var neighbors = A.neighbors(board, currentNode);
 
+        // Adding neighbors to open list and changing f,g and h for them
         for(var i=0; i<neighbors.length;i++) {
             var neighbor = neighbors[i];
             if(closed.findGraphNode(neighbor) || neighbor.isWall()) {
                 continue;
             }
-
+            
+            
             var gScore = currentNode.g + 1; 
+            // If this g score is the better than previous for this node
             var gScoreIsBest = false;
 
-
+            // If we visit this node firstly
             if(!opened.findGraphNode(neighbor)) {
                 gScoreIsBest = true;
-                neighbor.h = A.heuristic(neighbor.pos, end.pos);
+                neighbor.h = distance(neighbor, end);
                 opened.push(neighbor);
             }
             else if(gScore < neighbor.g) {
