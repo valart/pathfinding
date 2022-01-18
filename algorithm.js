@@ -177,6 +177,8 @@ function clearBoard() {
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     BOARD_NODES = [];
     WALLS = [];
+    startNode.clearParams();
+    finishNode.clearParams();
     initializeBoard();
 }
 
@@ -189,6 +191,8 @@ function clearPath() {
                 board.addNode(node);
             }
             BOARD_NODES[y][x].clearParams();
+            finishNode.clearParams()
+            startNode.clearParams()
         }
     }
 }
@@ -220,7 +224,7 @@ function runAlgorithm() {
 // Algorithms
 
 function distance(node1, node2) {
-    return Math.pow(Math.pow(node1.x/NODE_SIZE - node2.x/NODE_SIZE, 2) + Math.pow(node1.y/NODE_SIZE - node2.y/NODE_SIZE, 2), 0.5);
+    return Math.abs(node1.x/NODE_SIZE - node2.x/NODE_SIZE) + Math.abs(node1.y/NODE_SIZE - node2.y/NODE_SIZE);
 }
 
 function getNeighbors(node) {
@@ -409,7 +413,7 @@ function generateMaze() {
 }
 
 function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
-    if (X2 - X1 < 4 && Y2 - Y1 < 4) {
+    if (X2 - X1 < 4 || Y2 - Y1 < 4) {
         return 0;
     }
     if (n > 0) {
@@ -420,7 +424,7 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                 randomX = getRandomInt(X1 + 1, X2 - 1);
             }
             var gap1 = getRandomInt(Y1, Y2);
-            var gap2 = getRandomInt(Y1, Y2);
+            var gap2 = gap1+1;
             for (var y = Y1; y < Y2; y++) {
                 if (y !== gap1 && y !== gap2) {
                     const node = BOARD_NODES[y][randomX];
@@ -440,7 +444,7 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                 randomY = getRandomInt(Y1 + 1, Y2 - 1);
             }
             var gap1 = getRandomInt(X1, X2);
-            var gap2 = getRandomInt(X1, X2);
+            var gap2 = gap1+1;
 
             for (var x = X1; x < X2; x++) {
                 if (x !== gap1 && x !== gap2) {
