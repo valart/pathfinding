@@ -378,6 +378,11 @@ async function dijkstraSearch(start, end) {
                 if (currentNode.d + 1 < neighbor.d) {
                     neighbor.d = currentNode.d + 1;
                     neighbor.parent = currentNode;
+                    if (neighbor.status === Status.END) {
+                        break;
+                    }
+                    neighbor.status = Status.VISITED;
+                    neighbor.drawNode();
                 }
             }
         }
@@ -407,10 +412,6 @@ function generateMaze() {
     var genWalls = [];
     clearBoard();
     recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), 10, genWalls, 0, 0);
-    // for (var i = 0; i < genWalls.length; i++) {
-    //     genWalls[i].status = Status.WALL;
-    //     genWalls[i].drawNode();
-    // }
 }
 
 function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
@@ -432,7 +433,6 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                     node.size = 0;
                     node.status = Status.WALL;
                     WALLS.push(node);
-                    // walls.push(BOARD_NODES[y][randomX]);
                 }
             }
             recursiveDivision(X1, randomX, Y1, Y2, n - 1, walls, gap1, gap2);
@@ -453,7 +453,6 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                     node.size = 0;
                     node.status = Status.WALL;
                     WALLS.push(node);
-                    // walls.push(BOARD_NODES[randomY][x]);
                 }
             }
             recursiveDivision(X1, X2, Y1, randomY, n - 1, walls, gap1, gap2);
