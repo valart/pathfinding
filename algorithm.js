@@ -30,6 +30,7 @@ class Node {
         this.f = Infinity;
         this.g = Infinity;
         this.h = Infinity;
+        this.d = Infinity;
     }
 
     drawNode() {
@@ -164,13 +165,19 @@ function initializeBoard() {
 function runAlgorithm() {
     // TODO: Check which algorithm was chosen
     const algorithm = document.getElementById('algo-select').value;
-    var pathNodes = Asearch(startNode, finishNode);
-    console.log(pathNodes.length);
-    for(var i=0;i<pathNodes.length-1;i++){
-        pathNodes[i].status = Status.PATH
-        pathNodes[i].drawNode()
-    }
-    
+    if(algorithm==="asearch"){
+        var pathNodes = Asearch(startNode, finishNode);
+        for(var i=0;i<pathNodes.length-1;i++){
+            pathNodes[i].status = Status.PATH
+            pathNodes[i].drawNode()
+        }
+    }else{
+        var pathNodes = dijkstraSearch(startNode,finishNode);
+        for(var i=1;i<pathNodes.length;i++){
+            pathNodes[i].status = Status.PATH
+            pathNodes[i].drawNode()
+        }
+    }   
 }
 
 
@@ -288,4 +295,60 @@ function Asearch(start,end)  {
     }
     
     return [];
-  };
+};
+
+
+
+function dijkstraSearch(start,end){
+    start.d = 0;
+    var opened = [];
+    var closed = [];
+    for(var i=0;i<BOARD_NODES.length;i++){
+        for(var j=0;j<BOARD_NODES[0].length;j++){
+            opened.push(BOARD_NODES[i][j]);
+        }
+    }
+
+    while(opened.length>0){
+        // Choosing node with minimal distance so far
+
+        var index = 0
+        var minD = Infinity;
+        for(var i=0;i<opened.length;i++){
+            if(opened[i].d<minD){
+                minD = opened[i].d;
+                index = i;
+            }
+        }
+        var currentNode = opened[index];
+
+        // Update neighbors
+        var neighbors = getNeighbors(currentNode);
+        
+        for(var i=0;i<neighbors.length;i++){
+            var neighbor = neighbors[i];
+            if(!findNode(closed,neighbor) && neighbor.status !== Status.WALL){
+                if(currentNode.d + 1 < neighbor.d){
+                    neighbor.d = currentNode.d + 1;
+                    neighbor.parent = currentNode;
+                }
+            }
+        }
+        // Put current node to closed
+        removeNode(opened,currentNode);
+        closed.push(currentNode);
+    }
+
+    // Getting path
+    var result = [];
+    var curr = end;
+    while(curr!==start){
+        result.push(curr.parent);
+        curr = curr.parent;
+    }
+    return result.reverse();
+}
+
+
+
+// Generating Maze
