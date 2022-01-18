@@ -35,7 +35,7 @@ class Node {
         this.parent = null;
     }
 
-    clearParams(){
+    clearParams() {
         this.f = Infinity;
         this.g = Infinity;
         this.h = Infinity;
@@ -64,6 +64,9 @@ class Node {
                 break;
             case Status.PATH:
                 context.fillStyle = "yellow";
+                break;
+            case Status.VISITED:
+                context.fillStyle = "lightblue";
                 break;
             default:
                 context.fillStyle = "white";
@@ -185,7 +188,7 @@ function clearBoard() {
 function clearPath() {
     for (let y = 0; y < CANVAS_HEIGHT / NODE_SIZE; y++) {
         for (let x = 0; x < CANVAS_WIDTH / NODE_SIZE; x++) {
-            if (BOARD_NODES[y][x].status === Status.PATH) {
+            if (BOARD_NODES[y][x].status === Status.PATH || BOARD_NODES[y][x].status === Status.VISITED) {
                 const node = BOARD_NODES[y][x];
                 node.status = Status.EMPTY;
                 board.addNode(node);
@@ -203,16 +206,16 @@ function initializeBoard() {
     board.addNode(finishNode);
 }
 
-function runAlgorithm() {
+async function runAlgorithm() {
     const algorithm = document.getElementById('algo-select').value;
     if (algorithm === "asearch") {
-        var pathNodes = Asearch(startNode, finishNode);
+        var pathNodes = await Asearch(startNode, finishNode);
         for (var i = 0; i < pathNodes.length - 1; i++) {
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
     } else {
-        var pathNodes = dijkstraSearch(startNode, finishNode);
+        var pathNodes = await dijkstraSearch(startNode, finishNode);
         for (var i = 1; i < pathNodes.length; i++) {
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
@@ -224,7 +227,7 @@ function runAlgorithm() {
 // Algorithms
 
 function distance(node1, node2) {
-    return Math.abs(node1.x/NODE_SIZE - node2.x/NODE_SIZE) + Math.abs(node1.y/NODE_SIZE - node2.y/NODE_SIZE);
+    return Math.abs(node1.x / NODE_SIZE - node2.x / NODE_SIZE) + Math.abs(node1.y / NODE_SIZE - node2.y / NODE_SIZE);
 }
 
 function getNeighbors(node) {
@@ -266,18 +269,17 @@ function findNode(array, node) {
 }
 
 
-function Asearch(start, end) {
+async function Asearch(start, end) {
 
     var opened = [];
     var closed = [];
     start.g = 0;
-    start.h = distance(start,end);
+    start.h = distance(start, end);
     start.f = start.g + start.h;
     opened.push(start);
-    console.log("Start");
-    console.log(Math.floor(start.x/NODE_SIZE),Math.floor(start.y/NODE_SIZE));
     var z = 0;
     while (opened.length > 0) {
+        await new Promise(r => setTimeout(r, 1));
         // Choosing the node with lowest f
         var lowInd = 0;
         for (var i = 0; i < opened.length; i++) {
@@ -286,12 +288,7 @@ function Asearch(start, end) {
             }
         }
         var currentNode = opened[lowInd];
-        if(z<10){
-            console.log(currentNode.x/NODE_SIZE,currentNode.y/NODE_SIZE);
-            console.log(currentNode.f);
-            z++;
-        }
-        
+
         // When endpoint is reached
         if (currentNode.x === end.x && currentNode.y === end.y) {
             var curr = currentNode;
@@ -303,9 +300,7 @@ function Asearch(start, end) {
             return result.reverse();
         }
 
-
         // Removing node from opened
-
         removeNode(opened, currentNode)
 
         // Adding node to closed
@@ -319,7 +314,6 @@ function Asearch(start, end) {
                 continue;
             }
 
-
             var gScore = currentNode.g + 1;
             // If this g score is the better than previous for this node
             var gScoreIsBest = false;
@@ -329,6 +323,10 @@ function Asearch(start, end) {
                 gScoreIsBest = true;
                 neighbor.h = distance(neighbor, end);
                 opened.push(neighbor);
+                if (neighbor.status !== Status.END) {
+                    neighbor.status = Status.VISITED;
+                    neighbor.drawNode();
+                }
             } else if (gScore < neighbor.g) {
                 gScoreIsBest = true;
             }
@@ -345,7 +343,7 @@ function Asearch(start, end) {
 };
 
 
-function dijkstraSearch(start, end) {
+async function dijkstraSearch(start, end) {
     start.d = 0;
     var opened = [];
     var closed = [];
@@ -356,8 +354,8 @@ function dijkstraSearch(start, end) {
     }
 
     while (opened.length > 0) {
+        await new Promise(r => setTimeout(r, 1));
         // Choosing node with minimal distance so far
-
         var index = 0
         var minD = Infinity;
         for (var i = 0; i < opened.length; i++) {
@@ -424,7 +422,7 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                 randomX = getRandomInt(X1 + 1, X2 - 1);
             }
             var gap1 = getRandomInt(Y1, Y2);
-            var gap2 = gap1+1;
+            var gap2 = gap1 + 1;
             for (var y = Y1; y < Y2; y++) {
                 if (y !== gap1 && y !== gap2) {
                     const node = BOARD_NODES[y][randomX];
@@ -444,7 +442,7 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                 randomY = getRandomInt(Y1 + 1, Y2 - 1);
             }
             var gap1 = getRandomInt(X1, X2);
-            var gap2 = gap1+1;
+            var gap2 = gap1 + 1;
 
             for (var x = X1; x < X2; x++) {
                 if (x !== gap1 && x !== gap2) {
@@ -465,4 +463,5 @@ function update() {
     WALLS.forEach(wall => wall.animateNode());
     setTimeout(update, 1);
 }
+
 update();
