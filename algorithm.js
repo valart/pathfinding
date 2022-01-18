@@ -161,6 +161,18 @@ function clearBoard() {
     initializeBoard();
 }
 
+function clearPath() {
+    for (let y = 0; y < CANVAS_HEIGHT / NODE_SIZE; y++) {
+        for (let x = 0; x < CANVAS_WIDTH / NODE_SIZE; x++) {
+            if (BOARD_NODES[y][x].status === Status.PATH) {
+                const node = BOARD_NODES[y][x];
+                node.status = Status.EMPTY;
+                board.addNode(node);
+            }
+        }
+    }
+}
+
 function initializeBoard() {
     board.createBoard();
     board.addNode(startNode);
@@ -169,19 +181,19 @@ function initializeBoard() {
 
 function runAlgorithm() {
     const algorithm = document.getElementById('algo-select').value;
-    if(algorithm==="asearch"){
+    if (algorithm === "asearch") {
         var pathNodes = Asearch(startNode, finishNode);
-        for(var i=0;i<pathNodes.length-1;i++){
+        for (var i = 0; i < pathNodes.length - 1; i++) {
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
-    }else{
-        var pathNodes = dijkstraSearch(startNode,finishNode);
-        for(var i=1;i<pathNodes.length;i++){
+    } else {
+        var pathNodes = dijkstraSearch(startNode, finishNode);
+        for (var i = 1; i < pathNodes.length; i++) {
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
-    }   
+    }
 }
 
 
@@ -199,13 +211,13 @@ function getNeighbors(node) {
     if (x >= 1) {
         result.push(BOARD_NODES[y][x - 1]);
     }
-    if (x+1 < CANVAS_WIDTH / NODE_SIZE) {
+    if (x + 1 < CANVAS_WIDTH / NODE_SIZE) {
         result.push(BOARD_NODES[y][x + 1]);
     }
     if (y >= 1) {
         result.push(BOARD_NODES[y - 1][x]);
     }
-    if (y+1 < CANVAS_HEIGHT / NODE_SIZE) {
+    if (y + 1 < CANVAS_HEIGHT / NODE_SIZE) {
         result.push(BOARD_NODES[y + 1][x]);
     }
     return result;
@@ -213,7 +225,7 @@ function getNeighbors(node) {
 
 function removeNode(array, node) {
     for (var i = 0; i < array.length; i++) {
-        if (array[i] == node) {
+        if (array[i] === node) {
             array.splice(i, 1)
             break;
         }
@@ -222,7 +234,7 @@ function removeNode(array, node) {
 
 function findNode(array, node) {
     for (var i = 0; i < array.length; i++) {
-        if (array[i] == node) {
+        if (array[i] === node) {
             return true
         }
     }
@@ -301,23 +313,23 @@ function Asearch(start, end) {
 };
 
 
-function dijkstraSearch(start,end){
+function dijkstraSearch(start, end) {
     start.d = 0;
     var opened = [];
     var closed = [];
-    for(var i=0;i<BOARD_NODES.length;i++){
-        for(var j=0;j<BOARD_NODES[0].length;j++){
+    for (var i = 0; i < BOARD_NODES.length; i++) {
+        for (var j = 0; j < BOARD_NODES[0].length; j++) {
             opened.push(BOARD_NODES[i][j]);
         }
     }
 
-    while(opened.length>0){
+    while (opened.length > 0) {
         // Choosing node with minimal distance so far
 
         var index = 0
         var minD = Infinity;
-        for(var i=0;i<opened.length;i++){
-            if(opened[i].d<minD){
+        for (var i = 0; i < opened.length; i++) {
+            if (opened[i].d < minD) {
                 minD = opened[i].d;
                 index = i;
             }
@@ -326,25 +338,25 @@ function dijkstraSearch(start,end){
 
         // Update neighbors
         var neighbors = getNeighbors(currentNode);
-        
-        for(var i=0;i<neighbors.length;i++){
+
+        for (var i = 0; i < neighbors.length; i++) {
             var neighbor = neighbors[i];
-            if(!findNode(closed,neighbor) && neighbor.status !== Status.WALL){
-                if(currentNode.d + 1 < neighbor.d){
+            if (!findNode(closed, neighbor) && neighbor.status !== Status.WALL) {
+                if (currentNode.d + 1 < neighbor.d) {
                     neighbor.d = currentNode.d + 1;
                     neighbor.parent = currentNode;
                 }
             }
         }
         // Put current node to closed
-        removeNode(opened,currentNode);
+        removeNode(opened, currentNode);
         closed.push(currentNode);
     }
 
     // Getting path
     var result = [];
     var curr = end;
-    while(curr!==start){
+    while (curr !== start) {
         result.push(curr.parent);
         curr = curr.parent;
     }
@@ -352,59 +364,58 @@ function dijkstraSearch(start,end){
 }
 
 
-
 // Generating Maze
 
-function getRandomInt(min,max){
-    return Math.floor(Math.random()*(max-min))+min
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min
 }
 
-function generateMaze(){
+function generateMaze() {
     var genWalls = [];
-    recursiveDivision(0,Math.floor(CANVAS_WIDTH/NODE_SIZE),0,Math.floor(CANVAS_HEIGHT/NODE_SIZE),8,genWalls,0,0);
-    for(var i=0;i<genWalls.length;i++){
+    recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), 8, genWalls, 0, 0);
+    for (var i = 0; i < genWalls.length; i++) {
         genWalls[i].status = Status.WALL;
         genWalls[i].drawNode();
     }
 }
 
-function recursiveDivision(X1,X2,Y1,Y2,n,walls,pGap1,pGap2){
-    if(X2-X1 < 4 && Y2-Y1 < 4){
+function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
+    if (X2 - X1 < 4 && Y2 - Y1 < 4) {
         return 0;
     }
-    if(n>0){
+    if (n > 0) {
         // Vertically
-        if(X2-X1>Y2-Y1){
-            var randomX = getRandomInt(X1+1,X2-1);
-            while(randomX===Math.floor(startNode.x/NODE_SIZE) || randomX===Math.floor(finishNode.x/NODE_SIZE || randomX===pGap1 || randomX===pGap2)){
-                randomX = getRandomInt(X1+1,X2-1);
+        if (X2 - X1 > Y2 - Y1) {
+            var randomX = getRandomInt(X1 + 1, X2 - 1);
+            while (randomX === Math.floor(startNode.x / NODE_SIZE) || randomX === Math.floor(finishNode.x / NODE_SIZE || randomX === pGap1 || randomX === pGap2)) {
+                randomX = getRandomInt(X1 + 1, X2 - 1);
             }
-            var gap1 = getRandomInt(Y1,Y2);
-            var gap2 = getRandomInt(Y1,Y2);
-            for(var y=Y1;y<Y2;y++){
-                if(y!==gap1 && y!==gap2){
+            var gap1 = getRandomInt(Y1, Y2);
+            var gap2 = getRandomInt(Y1, Y2);
+            for (var y = Y1; y < Y2; y++) {
+                if (y !== gap1 && y !== gap2) {
                     walls.push(BOARD_NODES[y][randomX]);
                 }
             }
-            recursiveDivision(X1,randomX,Y1,Y2,n-1,walls,gap1,gap2);
-            recursiveDivision(randomX+1,X2,Y1,Y2,n-1,walls,gap1,gap2);
+            recursiveDivision(X1, randomX, Y1, Y2, n - 1, walls, gap1, gap2);
+            recursiveDivision(randomX + 1, X2, Y1, Y2, n - 1, walls, gap1, gap2);
         }
         // Horisontally
-        else{
-            var randomY = getRandomInt(Y1+1,Y2-1);
-            while(randomY===Math.floor(startNode.y/NODE_SIZE) || randomY===Math.floor(finishNode.y/NODE_SIZE || randomY===pGap1 || randomY===pGap2)){
-                randomY = getRandomInt(Y1+1,Y2-1);
+        else {
+            var randomY = getRandomInt(Y1 + 1, Y2 - 1);
+            while (randomY === Math.floor(startNode.y / NODE_SIZE) || randomY === Math.floor(finishNode.y / NODE_SIZE || randomY === pGap1 || randomY === pGap2)) {
+                randomY = getRandomInt(Y1 + 1, Y2 - 1);
             }
-            var gap1 = getRandomInt(X1,X2);
-            var gap2 = getRandomInt(X1,X2);
+            var gap1 = getRandomInt(X1, X2);
+            var gap2 = getRandomInt(X1, X2);
 
-            for(var x=X1;x<X2;x++){
-                if(x!==gap1 && x!== gap2){
+            for (var x = X1; x < X2; x++) {
+                if (x !== gap1 && x !== gap2) {
                     walls.push(BOARD_NODES[randomY][x]);
                 }
             }
-            recursiveDivision(X1,X2,Y1,randomY,n-1,walls,gap1,gap2);
-            recursiveDivision(X1,X2,randomY+1,Y2,n-1,walls,gap1,gap2);
+            recursiveDivision(X1, X2, Y1, randomY, n - 1, walls, gap1, gap2);
+            recursiveDivision(X1, X2, randomY + 1, Y2, n - 1, walls, gap1, gap2);
         }
     }
 }
