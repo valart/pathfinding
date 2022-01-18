@@ -1,15 +1,12 @@
 const canvas = document.getElementById('board');
 const context = canvas.getContext("2d");
-
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
 const MARGIN = 16;
 const NODE_SIZE = 25;
 
-console.log(CANVAS_HEIGHT);
-console.log(CANVAS_WIDTH);
-
 let BOARD_NODES = [];
+let WALLS = [];
 let isMouseDown = false;
 let isMovingStartNode = false;
 let isMovingEndNode = false;
@@ -21,7 +18,8 @@ const Status = {
     WALL: 'WALL',
     START: 'START',
     END: 'END',
-    PATH: 'PATH'
+    PATH: 'PATH',
+    VISITED: 'VISITED'
 }
 
 class Node {
@@ -34,6 +32,13 @@ class Node {
         this.g = Infinity;
         this.h = Infinity;
         this.d = Infinity;
+    }
+
+    animateNode() {
+        if (this.size < NODE_SIZE) {
+            this.size += 1;
+        }
+        this.drawNode();
     }
 
     drawNode() {
@@ -72,22 +77,26 @@ class Board {
             }
             BOARD_NODES.push(row);
         }
-        console.log(BOARD_NODES.length)
-        console.log(BOARD_NODES[0].length)
     }
 
     addWall(x, y) {
-        const node = new Node(Math.floor(x / NODE_SIZE) * NODE_SIZE, Math.floor(y / NODE_SIZE) * NODE_SIZE, NODE_SIZE, Status.WALL);
+        const node = new Node(Math.floor(x / NODE_SIZE) * NODE_SIZE, Math.floor(y / NODE_SIZE) * NODE_SIZE, 0, Status.WALL);
         if (BOARD_NODES[node.y / NODE_SIZE][node.x / NODE_SIZE].status === Status.EMPTY) {
-            this.addNode(node)
+            this.addWallAnimation(node);
         }
     }
 
     removeWall(x, y) {
         const node = new Node(Math.floor(x / NODE_SIZE) * NODE_SIZE, Math.floor(y / NODE_SIZE) * NODE_SIZE, NODE_SIZE, Status.EMPTY);
         if (BOARD_NODES[node.y / NODE_SIZE][node.x / NODE_SIZE].status === Status.WALL) {
-            this.addNode(node)
+            this.addNode(node);
+            WALLS = WALLS.filter(i => i.x !== node.x && y !== node.y);
         }
+    }
+
+    addWallAnimation(node) {
+        WALLS.push(node);
+        this.addNode(node);
     }
 
     addNode(node) {
@@ -158,6 +167,7 @@ canvas.addEventListener('mouseup', function (event) {
 function clearBoard() {
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     BOARD_NODES = [];
+    WALLS = [];
     initializeBoard();
 }
 
@@ -257,7 +267,6 @@ function Asearch(start, end) {
             }
         }
         var currentNode = opened[lowInd];
-        console.log(currentNode.x, currentNode.y);
         // When endpoint is reached
         if (currentNode.x === end.x && currentNode.y === end.y) {
             var curr = currentNode;
@@ -278,8 +287,6 @@ function Asearch(start, end) {
         closed.push(currentNode);
         // Getting node neighbors
         var neighbors = getNeighbors(currentNode);
-        console.log("Neighbors:")
-        console.log(neighbors.length)
         // Adding neighbors to open list and changing f,g and h for them
         for (var i = 0; i < neighbors.length; i++) {
             var neighbor = neighbors[i];
@@ -372,11 +379,12 @@ function getRandomInt(min, max) {
 
 function generateMaze() {
     var genWalls = [];
+    clearBoard();
     recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), 8, genWalls, 0, 0);
-    for (var i = 0; i < genWalls.length; i++) {
-        genWalls[i].status = Status.WALL;
-        genWalls[i].drawNode();
-    }
+    // for (var i = 0; i < genWalls.length; i++) {
+    //     genWalls[i].status = Status.WALL;
+    //     genWalls[i].drawNode();
+    // }
 }
 
 function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
@@ -394,7 +402,11 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
             var gap2 = getRandomInt(Y1, Y2);
             for (var y = Y1; y < Y2; y++) {
                 if (y !== gap1 && y !== gap2) {
-                    walls.push(BOARD_NODES[y][randomX]);
+                    const node = BOARD_NODES[y][randomX];
+                    node.size = 0;
+                    node.status = Status.WALL;
+                    WALLS.push(node);
+                    // walls.push(BOARD_NODES[y][randomX]);
                 }
             }
             recursiveDivision(X1, randomX, Y1, Y2, n - 1, walls, gap1, gap2);
@@ -411,7 +423,11 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
 
             for (var x = X1; x < X2; x++) {
                 if (x !== gap1 && x !== gap2) {
-                    walls.push(BOARD_NODES[randomY][x]);
+                    const node = BOARD_NODES[randomY][x];
+                    node.size = 0;
+                    node.status = Status.WALL;
+                    WALLS.push(node);
+                    // walls.push(BOARD_NODES[randomY][x]);
                 }
             }
             recursiveDivision(X1, X2, Y1, randomY, n - 1, walls, gap1, gap2);
@@ -419,3 +435,9 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
         }
     }
 }
+
+function update() {
+    WALLS.forEach(wall => wall.animateNode());
+    setTimeout(update, 1);
+}
+update();
