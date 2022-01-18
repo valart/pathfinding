@@ -227,7 +227,7 @@ async function runAlgorithm() {
 // Algorithms
 
 function distance(node1, node2) {
-    return Math.abs(node1.x / NODE_SIZE - node2.x / NODE_SIZE) + Math.abs(node1.y / NODE_SIZE - node2.y / NODE_SIZE);
+    return Math.abs(node1.x / NODE_SIZE - node2.x / NODE_SIZE) + Math.abs(node1.y / NODE_SIZE - node2.y / NODE_SIZE)*1.2;
 }
 
 function getNeighbors(node) {
@@ -365,6 +365,9 @@ async function dijkstraSearch(start, end) {
             }
         }
         var currentNode = opened[index];
+        if(currentNode.x === end.x && currentNode.y === end.y){
+            break;
+        }
 
         // Update neighbors
         var neighbors = getNeighbors(currentNode);
