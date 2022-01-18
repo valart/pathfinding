@@ -32,6 +32,15 @@ class Node {
         this.g = Infinity;
         this.h = Infinity;
         this.d = Infinity;
+        this.parent = null;
+    }
+
+    clearParams(){
+        this.f = Infinity;
+        this.g = Infinity;
+        this.h = Infinity;
+        this.d = Infinity;
+        this.parent = null;
     }
 
     animateNode() {
@@ -179,6 +188,7 @@ function clearPath() {
                 node.status = Status.EMPTY;
                 board.addNode(node);
             }
+            BOARD_NODES[y][x].clearParams();
         }
     }
 }
@@ -210,7 +220,7 @@ function runAlgorithm() {
 // Algorithms
 
 function distance(node1, node2) {
-    return Math.pow(Math.pow(node1.x - node2.x, 2) + Math.pow(node1.y - node2.y, 2), 0.5);
+    return Math.pow(Math.pow(node1.x/NODE_SIZE - node2.x/NODE_SIZE, 2) + Math.pow(node1.y/NODE_SIZE - node2.y/NODE_SIZE, 2), 0.5);
 }
 
 function getNeighbors(node) {
@@ -256,8 +266,13 @@ function Asearch(start, end) {
 
     var opened = [];
     var closed = [];
+    start.g = 0;
+    start.h = distance(start,end);
+    start.f = start.g + start.h;
     opened.push(start);
-
+    console.log("Start");
+    console.log(Math.floor(start.x/NODE_SIZE),Math.floor(start.y/NODE_SIZE));
+    var z = 0;
     while (opened.length > 0) {
         // Choosing the node with lowest f
         var lowInd = 0;
@@ -267,6 +282,12 @@ function Asearch(start, end) {
             }
         }
         var currentNode = opened[lowInd];
+        if(z<10){
+            console.log(currentNode.x/NODE_SIZE,currentNode.y/NODE_SIZE);
+            console.log(currentNode.f);
+            z++;
+        }
+        
         // When endpoint is reached
         if (currentNode.x === end.x && currentNode.y === end.y) {
             var curr = currentNode;
