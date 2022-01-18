@@ -405,7 +405,7 @@ function getRandomInt(min, max) {
 function generateMaze() {
     var genWalls = [];
     clearBoard();
-    recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), 8, genWalls, 0, 0);
+    recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), 10, genWalls, 0, 0);
     // for (var i = 0; i < genWalls.length; i++) {
     //     genWalls[i].status = Status.WALL;
     //     genWalls[i].drawNode();
