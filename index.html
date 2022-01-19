@@ -8,24 +8,58 @@
 </head>
 <body>
 <canvas id="board" width="1800" height="700"></canvas>
-<div class="container">
+<div>
     <div class="row">
-        <div class="col-md-6 text-left">
+        <div class="col-md-9 text-left">
             <button class="btn btn-primary" type="button" onclick="runAlgorithm()">Run algorithm</button>
             <select class="form-select" aria-label="Algorithm choice" id="algo-select">
-                <option value="none" selected>Choose algorithm</option>
-                <option value="dijsktra">Dijkstra</option>
+                <option value="dijsktra" selected>Dijkstra</option>
                 <option value="asearch">A* Search</option>
             </select>
+            <button class="btn btn-primary" type="button" onclick="generateMaze()">Generate maze</button>
+            <select class="form-select" aria-label="Algorithm choice" id="maze-select">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard" selected>Hard</option>
+                <option value="very-hard">Very hard</option>
+            </select>
         </div>
-        <div class="col-md-6 text-right">
-            <button class="btn btn-outline-primary" type="button" onclick="generateMaze()">Generate maze</button>
+        <div class="col-md-3 text-right">
             <button class="btn btn-outline-warning" type="button" onclick="clearPath()">Clear path</button>
             <button class="btn btn-outline-danger" type="button" onclick="clearBoard()">Clear board</button>
+            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#tutorial">See tutorial</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="tutorial" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Tutorial</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Hello!<br>This is tutorial how to use this path visualization tool.</p>
+                <p><b>Start and end nodes</b><p>
+                <p><b style="color:green">Green</b> node shows start point and <b style="color:red">red</b> node shows end point. If You would like to move any node, You should
+                press on it and drag where You want to locate it.</p>
+                <p><b>Walls</b><p>
+                <p>If You want to draw wall, just press left mouse button on any white node and start moving it. If You want to remove any wall, just press on black node and
+                start moving mouse. You also may want to generate maze. For that You can choose difficulty if maze generation in selector and press button <i>"Generate maze"</i></p>
+                <p><b>Algorithms</b><p>
+                <p>Given tool has two algorithms - Dijsktra and A* Search. To start any algorithm, You have to choose it from selector and press button <i>"Run algorithm"</i><p>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="algorithm.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 </html>

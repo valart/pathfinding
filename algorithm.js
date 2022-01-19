@@ -1,9 +1,12 @@
 const canvas = document.getElementById('board');
+canvas.style.width ='100%';
+canvas.style.height ='100%';
 const context = canvas.getContext("2d");
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
 const MARGIN = 16;
 const NODE_SIZE = 25;
+const WIDTH = 1860;
 
 let BOARD_NODES = [];
 let WALLS = [];
@@ -165,7 +168,9 @@ canvas.addEventListener('mousedown', function (event) {
 });
 canvas.addEventListener('mousemove', function (event) {
     if (isMouseDown) {
-        board.startAction(event.x - MARGIN, event.y - MARGIN);
+        const x = event.x * WIDTH / window.innerWidth;
+        const y = event.y * WIDTH / window.innerWidth;
+        board.startAction(x - MARGIN, y - MARGIN);
     }
 });
 canvas.addEventListener('mouseup', function (event) {
@@ -211,12 +216,14 @@ async function runAlgorithm() {
     if (algorithm === "asearch") {
         var pathNodes = await Asearch(startNode, finishNode);
         for (var i = 0; i < pathNodes.length - 1; i++) {
+            await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
     } else {
         var pathNodes = await dijkstraSearch(startNode, finishNode);
         for (var i = 1; i < pathNodes.length; i++) {
+            await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
@@ -227,7 +234,7 @@ async function runAlgorithm() {
 // Algorithms
 
 function distance(node1, node2) {
-    return Math.abs(node1.x / NODE_SIZE - node2.x / NODE_SIZE) + Math.abs(node1.y / NODE_SIZE - node2.y / NODE_SIZE)*1.2;
+    return Math.abs(node1.x / NODE_SIZE - node2.x / NODE_SIZE) + Math.abs(node1.y / NODE_SIZE - node2.y / NODE_SIZE) * 1.2;
 }
 
 function getNeighbors(node) {
@@ -365,7 +372,7 @@ async function dijkstraSearch(start, end) {
             }
         }
         var currentNode = opened[index];
-        if(currentNode.x === end.x && currentNode.y === end.y){
+        if (currentNode.x === end.x && currentNode.y === end.y) {
             break;
         }
 
@@ -401,20 +408,27 @@ async function dijkstraSearch(start, end) {
     return result.reverse();
 }
 
-
-// Generating Maze
-
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min
 }
 
 function generateMaze() {
-    var genWalls = [];
+    let complexity;
+    const level = document.getElementById('maze-select').value;
+    if (level === 'easy') {
+        complexity = 3;
+    } else if (level === 'medium') {
+        complexity = 6;
+    } else if (level === 'hard') {
+        complexity = 9;
+    }else {
+        complexity = 12
+    }
     clearBoard();
-    recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), 10, genWalls, 0, 0);
+    recursiveDivision(0, Math.floor(CANVAS_WIDTH / NODE_SIZE), 0, Math.floor(CANVAS_HEIGHT / NODE_SIZE), complexity, 0, 0);
 }
 
-function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
+function recursiveDivision(X1, X2, Y1, Y2, n, pGap1, pGap2) {
     if (X2 - X1 < 4 || Y2 - Y1 < 4) {
         return 0;
     }
@@ -435,8 +449,8 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                     WALLS.push(node);
                 }
             }
-            recursiveDivision(X1, randomX, Y1, Y2, n - 1, walls, gap1, gap2);
-            recursiveDivision(randomX + 1, X2, Y1, Y2, n - 1, walls, gap1, gap2);
+            recursiveDivision(X1, randomX, Y1, Y2, n - 1, gap1, gap2);
+            recursiveDivision(randomX + 1, X2, Y1, Y2, n - 1, gap1, gap2);
         }
         // Horisontally
         else {
@@ -455,8 +469,8 @@ function recursiveDivision(X1, X2, Y1, Y2, n, walls, pGap1, pGap2) {
                     WALLS.push(node);
                 }
             }
-            recursiveDivision(X1, X2, Y1, randomY, n - 1, walls, gap1, gap2);
-            recursiveDivision(X1, X2, randomY + 1, Y2, n - 1, walls, gap1, gap2);
+            recursiveDivision(X1, X2, Y1, randomY, n - 1, gap1, gap2);
+            recursiveDivision(X1, X2, randomY + 1, Y2, n - 1, gap1, gap2);
         }
     }
 }
