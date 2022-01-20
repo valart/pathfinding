@@ -213,15 +213,16 @@ function initializeBoard() {
 
 async function runAlgorithm() {
     const algorithm = document.getElementById('algo-select').value;
+    const speed = document.getElementById('algo-speed').value;
     if (algorithm === "asearch") {
-        var pathNodes = await Asearch(startNode, finishNode);
+        var pathNodes = await Asearch(startNode, finishNode, speed === 'fast' ?  1 : 50);
         for (var i = 0; i < pathNodes.length - 1; i++) {
             await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
     } else {
-        var pathNodes = await dijkstraSearch(startNode, finishNode);
+        var pathNodes = await dijkstraSearch(startNode, finishNode, speed === 'fast' ?  1 : 50);
         for (var i = 1; i < pathNodes.length; i++) {
             await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
@@ -276,7 +277,7 @@ function findNode(array, node) {
 }
 
 
-async function Asearch(start, end) {
+async function Asearch(start, end, speed) {
 
     var opened = [];
     var closed = [];
@@ -286,7 +287,7 @@ async function Asearch(start, end) {
     opened.push(start);
     var z = 0;
     while (opened.length > 0) {
-        await new Promise(r => setTimeout(r, 1));
+        await new Promise(r => setTimeout(r, speed));
         // Choosing the node with lowest f
         var lowInd = 0;
         for (var i = 0; i < opened.length; i++) {
@@ -350,7 +351,7 @@ async function Asearch(start, end) {
 }
 
 
-async function dijkstraSearch(start, end) {
+async function dijkstraSearch(start, end, speed) {
     start.d = 0;
     var opened = [];
     var closed = [];
@@ -361,7 +362,7 @@ async function dijkstraSearch(start, end) {
     }
 
     while (opened.length > 0) {
-        await new Promise(r => setTimeout(r, 1));
+        await new Promise(r => setTimeout(r, speed));
         // Choosing node with minimal distance so far
         var index = 0
         var minD = Infinity;
