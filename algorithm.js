@@ -4,7 +4,7 @@ canvas.style.height ='100%';
 const context = canvas.getContext("2d");
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
-const MARGIN = 16;
+const MARGIN = 25;
 const NODE_SIZE = 25;
 const WIDTH = 1860;
 
@@ -347,7 +347,7 @@ async function Asearch(start, end) {
     }
 
     return [];
-};
+}
 
 
 async function dijkstraSearch(start, end) {
