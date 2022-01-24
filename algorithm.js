@@ -15,6 +15,8 @@ let isMovingStartNode = false;
 let isMovingEndNode = false;
 let isDrawingWall = false;
 let isRemovingWall = false;
+let opacity = 0.08;
+let showColorTime = false;
 
 const Status = {
     EMPTY: 'EMPTY',
@@ -69,7 +71,12 @@ class Node {
                 context.fillStyle = "yellow";
                 break;
             case Status.VISITED:
-                context.fillStyle = "lightblue";
+                if (showColorTime) {
+                    context.fillStyle = "rgba(0,0,255," + opacity + ")";
+                    opacity += 0.0005;
+                } else {
+                    context.fillStyle = "lightblue";
+                }
                 break;
             default:
                 context.fillStyle = "white";
@@ -185,12 +192,18 @@ function clearBoard() {
     context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     BOARD_NODES = [];
     WALLS = [];
+    opacity = 0.08;
     startNode.clearParams();
     finishNode.clearParams();
     initializeBoard();
 }
 
+function showTime() {
+    showColorTime = document.getElementById('flexSwitchCheckDefault').checked;
+}
+
 function clearPath() {
+    opacity = 0.08;
     for (let y = 0; y < CANVAS_HEIGHT / NODE_SIZE; y++) {
         for (let x = 0; x < CANVAS_WIDTH / NODE_SIZE; x++) {
             if (BOARD_NODES[y][x].status === Status.PATH || BOARD_NODES[y][x].status === Status.VISITED) {
