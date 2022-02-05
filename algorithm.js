@@ -16,7 +16,7 @@ let isMovingEndNode = false;
 let isDrawingWall = false;
 let isRemovingWall = false;
 let opacity = 0.08;
-let showColorTime = false;
+let colorChoice;
 
 const Status = {
     EMPTY: 'EMPTY',
@@ -71,9 +71,12 @@ class Node {
                 context.fillStyle = "yellow";
                 break;
             case Status.VISITED:
-                if (showColorTime) {
+                if (colorChoice === 'GRADIENT') {
                     context.fillStyle = "rgba(0,0,255," + opacity + ")";
                     opacity += 0.0005;
+                } else if (colorChoice === 'RAINBOW') {
+                    context.fillStyle = 'hsl('+opacity+', 100%, 50%)';
+                    opacity += 0.18;
                 } else {
                     context.fillStyle = "lightblue";
                 }
@@ -198,10 +201,6 @@ function clearBoard() {
     initializeBoard();
 }
 
-function showTime() {
-    showColorTime = document.getElementById('flexSwitchCheckDefault').checked;
-}
-
 function clearPath() {
     opacity = 0.08;
     for (let y = 0; y < CANVAS_HEIGHT / NODE_SIZE; y++) {
@@ -227,6 +226,7 @@ function initializeBoard() {
 async function runAlgorithm() {
     const algorithm = document.getElementById('algo-select').value;
     const speed = document.getElementById('algo-speed').value;
+    colorChoice = document.getElementById('color-choice').value.toUpperCase();
     if (algorithm === "asearch") {
         var pathNodes = await Asearch(startNode, finishNode, speed === 'fast' ?  1 : 50);
         for (var i = 0; i < pathNodes.length - 1; i++) {
