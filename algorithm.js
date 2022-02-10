@@ -243,7 +243,7 @@ async function runAlgorithm() {
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
-    }else{
+    } else{
         var pathNodes = Dstar(startNode,finishNode);
         for (var i = 1; i < pathNodes.length; i++){
             pathNodes[i].status = Status.PATH;
@@ -503,12 +503,12 @@ function calculateRHS(start, s){
     if(start===s){
         return 0;
     }else{
-        minimal = Infinity
-        neighbors = getNeighbors(s)
-        for(x=0;x<neighbors.length;x++){
-            neighbor = neighbors[x];
+        let minimal = Infinity
+        const neighbors = getNeighbors(s)
+        for(let x=0;x<neighbors.length;x++){
+            let neighbor = neighbors[x];
             if(neighbor.status !== Status.WALL){
-                cost = neighbor.g + 1;
+                let cost = neighbor.g + 1;
                 if(cost<minimal){
                     minimal = cost;
                 }
@@ -519,8 +519,7 @@ function calculateRHS(start, s){
 }
 
 function calcKeys(s){
-    keys = [];
-
+    const keys = [];
     if(s.g<s.rhs){
         keys.push(s.g+distance(s,finishNode));
         keys.push(s.g);
@@ -532,12 +531,12 @@ function calcKeys(s){
 }
 
 function getPrioNode(opened){
-    current = opened[0];
-    k1 = current.keys[0];
-    k2 = current.keys[1];
+    let current = opened[0];
+    let k1 = current.keys[0];
+    let k2 = current.keys[1];
     
-    for(x=1;x<opened.length;x++){
-        n = opened[x];
+    for(let x=1;x<opened.length;x++){
+        const n = opened[x];
         if(n.keys[0]<k1){
             current = n;
             k1 = current.keys[0];
@@ -552,7 +551,7 @@ function getPrioNode(opened){
 }
 
 function isFinished(opened){
-    prio = getPrioNode(opened);
+    const prio = getPrioNode(opened);
     finishNode.keys = calcKeys(finishNode);
     if (prio.keys[0] < finishNode.keys[0] || finishNode.rhs !== finishNode.g){
         return true;
@@ -578,24 +577,24 @@ function updateNode(opened,closed,n){
 
 function computeShortestPath(opened,closed,start){
     while(isFinished(opened)){
-        console.log(opened.lenght);
-        u = getPrioNode(opened);
+        let u = getPrioNode(opened);
         if(u.g > u.rhs){
             u.g = u.rhs;
-            neighbors = getNeighbors(u);
-            for(x=0;x<neighbors.length;x++){
-                neighbor = neighbors[x];
+            const neighbors = getNeighbors(u);
+            for(let x=0;x<neighbors.length;x++){
+                const  neighbor = neighbors[x];
                 updateNode(opened,closed,neighbor);
             }
         }else{
             u.g = Infinity;
             updateNode(opened,closed,u);
-            neighbors = getNeighbors(u);
-            for(x=0;x<neighbors.length;x++){
-                neighbor = neighbors[x];
+            const neighbors = getNeighbors(u);
+            for(let x=0;x<neighbors.length;x++){
+                const neighbor = neighbors[x];
                 updateNode(opened,closed,neighbor);
             }
         }
+        console.log(u);
     }
 }
 
@@ -604,20 +603,20 @@ function computeShortestPath(opened,closed,start){
 
 function Dstar(start,end){
     // Initialize
-    opened = [];
-    closed = [];
+    const opened = [];
+    const closed = [];
     start.keys = calcKeys(start);
     start.rhs = 0;
     opened.push(start);
-    currentNode = end;
-    path = [];
+    let currentNode = end;
+    const path = [];
     path.push(currentNode);
-    computeShortestPath(opened,closed,start)
-    while(currentNode !== finishNode){
-        neighbors = getNeighbors(currentNode);
-        minCost = Infinity;
-        for(x=0;x<neighbors.length;x++){
-            neighbor = neighbors[x];
+    computeShortestPath(opened,closed,start);
+    while(currentNode !== startNode){
+        let neighbors = getNeighbors(currentNode);
+        let minCost = Infinity;
+        for(let x=0;x<neighbors.length;x++){
+            const neighbor = neighbors[x];
             if(neighbor.status !== Status.WALL){
                 if(neighbor.g + 1 < minCost){
                     minCost = neighbor.g + 1;
