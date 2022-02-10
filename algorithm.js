@@ -37,6 +37,8 @@ class Node {
         this.g = Infinity;
         this.h = Infinity;
         this.d = Infinity;
+        this.rhs = Infinity;
+        this.keys = null;
         this.parent = null;
     }
 
@@ -234,12 +236,18 @@ async function runAlgorithm() {
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
-    } else {
+    } else if(algorithm === "dijkstra") {
         var pathNodes = await dijkstraSearch(startNode, finishNode, speed === 'fast' ?  1 : 50);
         for (var i = 1; i < pathNodes.length; i++) {
             await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
+        }
+    }else{
+        var pathNodes = Dstar(startNode,finishNode);
+        for (var i = 1; i < pathNodes.length; i++){
+            pathNodes[i].status = Status.PATH;
+            pathNodes[i].drawNode();
         }
     }
 }
@@ -488,6 +496,142 @@ function recursiveDivision(X1, X2, Y1, Y2, n, pGap1, pGap2) {
         }
     }
 }
+
+// D* search
+
+function calculateRHS(start, s){
+    if(start===s){
+        return 0;
+    }else{
+        minimal = Infinity
+        neighbors = getNeighbors(s)
+        for(x=0;x<neighbors.length;x++){
+            neighbor = neighbors[x];
+            if(neighbor.status !== Status.WALL){
+                cost = neighbor.g + 1;
+                if(cost<minimal){
+                    minimal = cost;
+                }
+            }
+        }
+        return minimal;
+    }
+}
+
+function calcKeys(s){
+    keys = [];
+
+    if(s.g<s.rhs){
+        keys.push(s.g+distance(s,finishNode));
+        keys.push(s.g);
+    }else{
+        keys.push(s.rhs+distance(s,finishNode));
+        keys.push(s.rhs);
+    }
+    return keys;
+}
+
+function getPrioNode(opened){
+    current = opened[0];
+    k1 = current.keys[0];
+    k2 = current.keys[1];
+    
+    for(x=1;x<opened.length;x++){
+        n = opened[x];
+        if(n.keys[0]<k1){
+            current = n;
+            k1 = current.keys[0];
+            k2 = current.keys[1];
+        }else if(n.keys[0]===k1 && n.keys[1]<k2){
+            current = n;
+            k1 = current.keys[0];
+            k2 = current.keys[1];
+        }
+    }
+    return current;
+}
+
+function isFinished(opened){
+    prio = getPrioNode(opened);
+    finishNode.keys = calcKeys(finishNode);
+    if (prio.keys[0] < finishNode.keys[0] || finishNode.rhs !== finishNode.g){
+        return true;
+    }
+    return false;
+}
+
+function updateNode(opened,closed,n){
+    if(n!==startNode){
+        n.rhs = calculateRHS(startNode,n);
+    }
+    
+    if(findNode(opened,n)){
+        removeNode(opened,n);
+    }
+    if(n.rhs!==n.g){
+        n.keys = calcKeys(n);
+        opened.push(n);
+    }else{
+        //closed.push(n);
+    }
+}
+
+function computeShortestPath(opened,closed,start){
+    while(isFinished(opened)){
+        console.log(opened.lenght);
+        u = getPrioNode(opened);
+        if(u.g > u.rhs){
+            u.g = u.rhs;
+            neighbors = getNeighbors(u);
+            for(x=0;x<neighbors.length;x++){
+                neighbor = neighbors[x];
+                updateNode(opened,closed,neighbor);
+            }
+        }else{
+            u.g = Infinity;
+            updateNode(opened,closed,u);
+            neighbors = getNeighbors(u);
+            for(x=0;x<neighbors.length;x++){
+                neighbor = neighbors[x];
+                updateNode(opened,closed,neighbor);
+            }
+        }
+    }
+}
+
+
+
+
+function Dstar(start,end){
+    // Initialize
+    opened = [];
+    closed = [];
+    start.keys = calcKeys(start);
+    start.rhs = 0;
+    opened.push(start);
+    currentNode = end;
+    path = [];
+    path.push(currentNode);
+    computeShortestPath(opened,closed,start)
+    while(currentNode !== finishNode){
+        neighbors = getNeighbors(currentNode);
+        minCost = Infinity;
+        for(x=0;x<neighbors.length;x++){
+            neighbor = neighbors[x];
+            if(neighbor.status !== Status.WALL){
+                if(neighbor.g + 1 < minCost){
+                    minCost = neighbor.g + 1;
+                    currentNode = neighbor;
+                }
+            }
+        }
+        path.push(currentNode);
+    }
+    return path;
+}
+
+
+
 
 function update() {
     WALLS.forEach(wall => wall.animateNode());
