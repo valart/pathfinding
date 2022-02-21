@@ -1,6 +1,6 @@
 const canvas = document.getElementById('board');
-canvas.style.width ='100%';
-canvas.style.height ='100%';
+canvas.style.width = '100%';
+canvas.style.height = '100%';
 const context = canvas.getContext("2d");
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
@@ -77,7 +77,7 @@ class Node {
                     context.fillStyle = "rgba(0,0,255," + opacity + ")";
                     opacity += 0.0005;
                 } else if (colorChoice === 'RAINBOW') {
-                    context.fillStyle = 'hsl('+opacity+', 100%, 50%)';
+                    context.fillStyle = 'hsl(' + opacity + ', 100%, 50%)';
                     opacity += 0.18;
                 } else {
                     context.fillStyle = "lightblue";
@@ -230,22 +230,23 @@ async function runAlgorithm() {
     const speed = document.getElementById('algo-speed').value;
     colorChoice = document.getElementById('color-choice').value.toUpperCase();
     if (algorithm === "asearch") {
-        var pathNodes = await Asearch(startNode, finishNode, speed === 'fast' ?  1 : 50);
-        for (var i = 0; i < pathNodes.length - 1; i++) {
+        const pathNodes = await Asearch(startNode, finishNode, speed === 'fast' ? 1 : 50);
+        for (let i = 0; i < pathNodes.length - 1; i++) {
             await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
-    } else if(algorithm === "dijkstra") {
-        var pathNodes = await dijkstraSearch(startNode, finishNode, speed === 'fast' ?  1 : 50);
-        for (var i = 1; i < pathNodes.length; i++) {
+    } else if (algorithm === "dijkstra") {
+        const pathNodes = await dijkstraSearch(startNode, finishNode, speed === 'fast' ? 1 : 50);
+        for (let i = 1; i < pathNodes.length; i++) {
             await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH
             pathNodes[i].drawNode()
         }
-    } else{
-        var pathNodes = Dstar(startNode,finishNode);
-        for (var i = 1; i < pathNodes.length; i++){
+    } else {
+        const pathNodes = await BFS(startNode, finishNode, speed === 'fast' ? 1 : 50);
+        for (let i = 1; i < pathNodes.length; i++) {
+            await new Promise(r => setTimeout(r, 25));
             pathNodes[i].status = Status.PATH;
             pathNodes[i].drawNode();
         }
@@ -443,7 +444,7 @@ function generateMaze() {
         complexity = 6;
     } else if (level === 'hard') {
         complexity = 9;
-    }else {
+    } else {
         complexity = 12
     }
     clearBoard();
@@ -495,6 +496,41 @@ function recursiveDivision(X1, X2, Y1, Y2, n, pGap1, pGap2) {
             recursiveDivision(X1, X2, randomY + 1, Y2, n - 1, gap1, gap2);
         }
     }
+}
+
+async function BFS(startNode, endNode, speed) {
+    startNode.d = 0;
+    const visited = [startNode];
+    const queue = [startNode];
+    while (queue.length > 0) {
+        await new Promise(r => setTimeout(r, speed));
+        queue.sort((prev, curr) => (distance(prev, endNode) < distance(curr, endNode)) ? -1 : ((distance(prev, endNode) > distance(curr, endNode)) ? 1 : 0));
+        const bestNode = queue.shift();
+        for(const neighbour of getNeighbors(bestNode)) {
+            if (!findNode(visited, neighbour) && neighbour.status !== Status.WALL) {
+                if (bestNode.d + 1 < neighbour.d) {
+                    neighbour.d = bestNode.d + 1;
+                    neighbour.parent = bestNode;
+                    if (neighbour.status === Status.END) {
+                        queue.length = 0;
+                        break;
+                    }
+                    visited.push(neighbour);
+                    queue.push(neighbour);
+                    neighbour.status = Status.VISITED;
+                    neighbour.drawNode();
+                }
+            }
+        }
+    }
+
+    const answer = [];
+    let currentNode = endNode;
+    while (currentNode !== startNode) {
+        answer.push(currentNode.parent);
+        currentNode = currentNode.parent;
+    }
+    return answer.reverse();
 }
 
 // D* search
@@ -629,18 +665,16 @@ function recursiveDivision(X1, X2, Y1, Y2, n, pGap1, pGap2) {
 //     }
 //     return path;
 // }
-
-function Dstar(start,end){
-    computeShortestPath(start, end);
-}
-
-function computeShortestPath(start, end) {
-    while (end.h !== end.rhs) {
-
-    }
-}
-
-
+//
+// function Dstar(start, end) {
+//     computeShortestPath(start, end);
+// }
+//
+// function computeShortestPath(start, end) {
+//     while (end.h !== end.rhs) {
+//
+//     }
+// }
 
 
 function update() {
