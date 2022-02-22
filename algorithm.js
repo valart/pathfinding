@@ -375,8 +375,8 @@ async function Asearch(start, end, speed) {
 
 async function dijkstraSearch(start, end, speed) {
     start.d = 0;
-    var opened = [];
-    var closed = [];
+    const opened = [];
+    const closed = [];
     for (var i = 0; i < BOARD_NODES.length; i++) {
         for (var j = 0; j < BOARD_NODES[0].length; j++) {
             opened.push(BOARD_NODES[i][j]);
@@ -422,8 +422,8 @@ async function dijkstraSearch(start, end, speed) {
     }
 
     // Getting path
-    var result = [];
-    var curr = end;
+    const result = [];
+    let curr = end;
     while (curr !== start) {
         result.push(curr.parent);
         curr = curr.parent;
@@ -532,150 +532,6 @@ async function BFS(startNode, endNode, speed) {
     }
     return answer.reverse();
 }
-
-// D* search
-
-// function calculateRHS(start, s){
-//     if(start===s){
-//         return 0;
-//     }else{
-//         let minimal = Infinity
-//         const neighbors = getNeighbors(s)
-//         for(let x=0;x<neighbors.length;x++){
-//             let neighbor = neighbors[x];
-//             if(neighbor.status !== Status.WALL){
-//                 let cost = neighbor.g + 1;
-//                 if(cost<minimal){
-//                     minimal = cost;
-//                 }
-//             }
-//         }
-//         return minimal;
-//     }
-// }
-//
-// function calcKeys(s){
-//     const keys = [];
-//     if(s.g<s.rhs){
-//         keys.push(s.g+distance(s,finishNode));
-//         keys.push(s.g);
-//     }else{
-//         keys.push(s.rhs+distance(s,finishNode));
-//         keys.push(s.rhs);
-//     }
-//     return keys;
-// }
-//
-// function getPrioNode(opened){
-//     let current = opened[0];
-//     let k1 = current.keys[0];
-//     let k2 = current.keys[1];
-//
-//     for(let x=1;x<opened.length;x++){
-//         const n = opened[x];
-//         if(n.keys[0]<k1){
-//             current = n;
-//             k1 = current.keys[0];
-//             k2 = current.keys[1];
-//         }else if(n.keys[0]===k1 && n.keys[1]<k2){
-//             current = n;
-//             k1 = current.keys[0];
-//             k2 = current.keys[1];
-//         }
-//     }
-//     return current;
-// }
-//
-// function isFinished(opened){
-//     const prio = getPrioNode(opened);
-//     finishNode.keys = calcKeys(finishNode);
-//     if (prio.keys[0] < finishNode.keys[0] || finishNode.rhs !== finishNode.g){
-//         return false;
-//     }
-//     return true;
-// }
-//
-// function updateNode(opened,closed,n){
-//     if(n!==startNode){
-//         n.rhs = calculateRHS(startNode,n);
-//     }
-//
-//     if(findNode(opened,n)){
-//         removeNode(opened,n);
-//     }
-//     if(n.rhs!==n.g){
-//         n.keys = calcKeys(n);
-//         opened.push(n);
-//     }else{
-//         //closed.push(n);
-//     }
-// }
-//
-// function computeShortestPath(opened,closed,start){
-//     while(isFinished(opened)){
-//         let u = getPrioNode(opened);
-//         if(u.g > u.rhs){
-//             u.g = u.rhs;
-//             const neighbors = getNeighbors(u);
-//             for(let x=0;x<neighbors.length;x++){
-//                 const  neighbor = neighbors[x];
-//                 updateNode(opened,closed,neighbor);
-//             }
-//         }else{
-//             u.g = Infinity;
-//             updateNode(opened,closed,u);
-//             const neighbors = getNeighbors(u);
-//             for(let x=0;x<neighbors.length;x++){
-//                 const neighbor = neighbors[x];
-//                 updateNode(opened,closed,neighbor);
-//             }
-//         }
-//         console.log(u);
-//     }
-// }
-//
-//
-//
-//
-// function Dstar(start,end){
-//     // Initialize
-//     const opened = [];
-//     const closed = [];
-//     start.keys = calcKeys(start);
-//     start.rhs = 0;
-//     opened.push(start);
-//     let currentNode = end;
-//     const path = [];
-//     path.push(currentNode);
-//     computeShortestPath(opened,closed,start);
-//     while(currentNode !== startNode){
-//         let neighbors = getNeighbors(currentNode);
-//         let minCost = Infinity;
-//         break;
-//         for(let x=0;x<neighbors.length;x++){
-//             const neighbor = neighbors[x];
-//             if(neighbor.status !== Status.WALL){
-//                 if(neighbor.g + 1 < minCost){
-//                     minCost = neighbor.g + 1;
-//                     currentNode = neighbor;
-//                 }
-//             }
-//         }
-//         path.push(currentNode);
-//     }
-//     return path;
-// }
-//
-// function Dstar(start, end) {
-//     computeShortestPath(start, end);
-// }
-//
-// function computeShortestPath(start, end) {
-//     while (end.h !== end.rhs) {
-//
-//     }
-// }
-
 
 function update() {
     WALLS.forEach(wall => wall.animateNode());
